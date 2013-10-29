@@ -23,19 +23,19 @@ class Kohana_SphinxQL_Client {
 	/**
 	 * @var string The address and port of the server this client is to connect to
 	 */
-	protected $_server = false;
+	protected $_server = FALSE;
 	/**
 	 * @var resource A reference to the mysql link that this client will be using
 	 */
-	protected $_handle = false;
+	protected $_handle = FALSE;
 	/**
 	 * @var boolean A flag to denote whether or not this client has tried to connect and failed
 	 */
-	protected $_failed = false;
+	protected $_failed = FALSE;
 	/**
 	 * @var resource A reference to the mysql result returned by a query that this client has performed
 	 */
-	protected $_result = false;
+	protected $_result = FALSE;
 
 	/**
 	 * Constructor
@@ -43,7 +43,8 @@ class Kohana_SphinxQL_Client {
 	 * @param string The address and port of a sphinx server
 	 */
 	public function __construct($server) {
-		if (!is_string($server)) { return false; }
+		if (!is_string($server)) 
+      return FALSE;
 		$this->_server = $server;
 	}
 
@@ -53,16 +54,19 @@ class Kohana_SphinxQL_Client {
 	 * @return boolean Status of the connection attempt
 	 */
 	protected function connect() {
-		if ($this->_handle) { return true; }
-		if ($this->_failed) { return false; }
-		if ($this->_server === false) { return false; }
+		if ($this->_handle) 
+      return TRUE;
+		if ($this->_failed)
+      return FALSE;
+		if ($this->_server === FALSE) 
+      return FALSE;
 		try {
 			$this->_handle = mysqli_connect($this->_server);
 		} catch (Exception $e) {
-			$this->_failed = true;
-			return false;
+			$this->_failed = TRUE;
+			return FALSE;
 		}
-		return true;
+		return TRUE;
 	}
 
 	/**
@@ -72,43 +76,53 @@ class Kohana_SphinxQL_Client {
 	 * @return SphinxQL_Client This client object
 	 */
 	public function query($query) {
-		$this->_result = false;
+		$this->_result = FALSE;
 		if (is_string($query) && $this->connect()) {
-            @$this->_result = mysqli_query($this->_handle, $query);
-        }
+      @$this->_result = mysqli_query($this->_handle, $query);
+    }
 		return $this;
 	}
 
-    public function total_find() {
-      $result = mysqli_query($this->_handle, "SHOW META");
-      if($result) {
-        $result = mysqli_fetch_assoc($result);
-        return intval($result['Value']);
-      } else {
-        return 0;
-      }
+  /**
+   * Count total rows in result.
+   **/
+  public function total_find() {
+    if (!$this->_handle)
+      return FALSE;
+    $result = mysqli_query($this->_handle, "SHOW META");
+    if($result) {
+      $result = mysqli_fetch_assoc($result);
+      return intval($result['Value']);
+    } else {
+      return 0;
     }
+  }
 
 	/**
 	 * Fetch one row of the result set
 	 *
-	 * @return array|false The row or an error
+	 * @return array|FALSE The row or an error
 	 */
 	public function fetch_row() {
-		if ($this->_result === false) { return false; }
-		if ($arr = mysqli_fetch_assoc($this->_result)) { return $arr; }
-		return false;
+		if ($this->_result === FALSE)
+      return FALSE;
+		if ($arr = mysqli_fetch_assoc($this->_result)) 
+      return $arr;
+		return FALSE;
 	}
 
 	/**
 	 * Fetch the whole result set
 	 *
-	 * @return array|false The results or an error
+	 * @return array|FALSE The results or an error
 	 */
 	public function fetch_all() {
-		if ($this->_result === false) { return false; }
+		if ($this->_result === FALSE) 
+      return FALSE;
 		$ret = array();
-		while ($arr = mysqli_fetch_assoc($this->_result)) { $ret[] = $arr; }
+		while ($arr = mysqli_fetch_assoc($this->_result)) {
+      $ret[] = $arr;
+    }
 		return $ret;
 	}
 }
